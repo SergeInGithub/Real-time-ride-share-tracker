@@ -5,34 +5,12 @@ import {
   createRoutesFromElements,
 } from 'react-router-dom';
 import { RootLayout } from '../layouts';
-import {
-  About,
-  Contact,
-  Home,
-  NotFound,
-  Projects,
-  Skills,
-  Testing,
-} from '../pages';
+import Home from '../pages/Home';
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<RootLayout />}>
-      <Route
-        index
-        element={
-          <>
-            <Home />
-            <About />
-            <Skills />
-            <Projects />
-            <Contact />
-          </>
-        }
-      />
-      <Route path="*" element={<NotFound />} />
-      <Route path="404" element={<NotFound />} />
-      <Route path="testing" element={<Testing />} />
+      <Route index element={<Home />} />
     </Route>,
   ),
 );
