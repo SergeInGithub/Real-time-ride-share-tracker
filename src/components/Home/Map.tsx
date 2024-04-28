@@ -1,62 +1,78 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+  GoogleMap,
+  Marker,
+  Polyline,
+  useJsApiLoader,
+} from '@react-google-maps/api';
+import { center, containerStyle, intermediateStops } from '../../data/mapsData';
 
-export const Map = () => {
-  const [latitude, setLatitude] = useState<number | null>(null);
-  const [longitude, setLongitude] = useState<number | null>(null);
-  const [accuracy, setAccuracy] = useState<number | null>(null);
-  const [altitude, setAltitude] = useState<number | null>(null);
-  const [heading, setHeading] = useState<number | null>(null);
-  const [speed, setSpeed] = useState<number | null>(null);
-  const [reqCount, setReqCount] = useState(0);
+type IMapProps = {
+  driverLocation: {
+    lat: number;
+    lng: number;
+    name: string;
+  };
+  setDriverLocationIndex: React.Dispatch<React.SetStateAction<number>>;
+};
+
+export const Map = ({ driverLocation, setDriverLocationIndex }: IMapProps) => {
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: 'AIzaSyBpJL6jIAAzOGyIj0CGF56KBLawI7yXcLc', //! This is not best practice to expose keys like this but this just for dev purposes only.
+  });
+
+  const [map, setMap] = useState(null);
+
+  const onLoad = useCallback((map: any) => setMap(map), []);
 
   useEffect(() => {
-    const watchId = navigator.geolocation.watchPosition(successCallback);
+    const interval = setInterval(() => {
+      setDriverLocationIndex((prevIndex: number) =>
+        prevIndex < intermediateStops.length - 1 ? prevIndex + 1 : prevIndex,
+      );
+    }, 5000);
 
-    return () => {
-      navigator.geolocation.clearWatch(watchId);
-    };
+    return () => clearInterval(interval);
   }, []);
-
-  navigator.geolocation.watchPosition(successCallback);
-
-  function successCallback(position: {
-    coords: {
-      speed: any;
-      latitude: any;
-      longitude: any;
-      accuracy: any;
-      altitude: any;
-      heading: any;
-    };
-  }) {
-    const { speed, latitude, longitude, accuracy, altitude, heading } =
-      position.coords;
-
-    setReqCount((prevReqCount) => prevReqCount + 1);
-
-    setLatitude(latitude);
-    setLongitude(longitude);
-    setAccuracy(accuracy);
-    setAltitude(altitude);
-    setHeading(heading);
-    setSpeed(speed);
-    setSpeed(speed);
-  }
-
-  useEffect(() => {
-    console.log('Count', reqCount);
-    console.log('Speed', speed);
-    console.log('Count', accuracy);
-    console.log('Count', altitude);
-    console.log('Count', heading);
-  }, [speed, reqCount, accuracy, altitude, heading]);
 
   return (
     <div className="absolute w-full h-[60%] top-[30%]" id="map">
-      <iframe
-        src={`https://maps.google.com/maps?q=+${latitude}, +${longitude}+&amp;z=15&amp;output=embed`}
-        className="w-full h-full"
-      />
+      {isLoaded ? (
+        <div className="relative w-full mb-6 overflow-hidden h-80">
+          <GoogleMap
+            mapContainerStyle={containerStyle}
+            center={center}
+            zoom={13}
+            onLoad={onLoad}
+          >
+            {intermediateStops.map((stop, index) => (
+              <Marker
+                key={index}
+                position={stop}
+                label={{ text: stop.name, color: 'white', fontWeight: 'bold' }}
+              />
+            ))}
+            {driverLocation && (
+              <Marker
+                position={driverLocation}
+                icon={{
+                  url: 'https://static-00.iconduck.com/assets.00/taxi-driver-illustration-512x399-htvnrr03.png',
+                  scaledSize: new window.google.maps.Size(50, 50),
+                }}
+              />
+            )}
+            <Polyline
+              path={intermediateStops}
+              options={{ strokeColor: '#209CEE' }}
+            />
+          </GoogleMap>
+        </div>
+      ) : (
+        <div className="flex mt-[50%] justify-center text-xl font-bold text-center text-white">
+          Map Loading...
+        </div>
+      )}
     </div>
   );
 };
