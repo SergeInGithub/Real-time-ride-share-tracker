@@ -19,7 +19,7 @@ type IMapProps = {
 export const Map = ({ driverLocation, setDriverLocationIndex }: IMapProps) => {
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: 'AIzaSyBpJL6jIAAzOGyIj0CGF56KBLawI7yXcLc', //! This is not best practice to expose keys like this but this just for dev purposes only.
+    googleMapsApiKey: import.meta.env.VITE_API_KEY as string,
   });
 
   const [map, setMap] = useState(null);
