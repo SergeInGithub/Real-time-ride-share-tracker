@@ -2,7 +2,7 @@
 
 ## ℹ️ Description
 
-This endeavor is a dynamic ride-sharing monitoring system crafted with React.js and the Google Maps API. It operates by updating the driver's whereabouts every 10 seconds, mirroring real-time motion.
+This endeavor is a dynamic ride-sharing monitoring system crafted with React.js and the Google Maps API. It operates by updating the driver's whereabouts every 5 seconds, mirroring real-time motion.
 
 ## 🧬 Live Site
 
